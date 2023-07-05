@@ -1548,3 +1548,111 @@ const p = new myPromise(((resolve, reject) => {
 p.then((x) => { console.log(x); });
 // 无输出
 ```
+
+## ES6新特性
+
+es6也叫es2015，ES6的特性比较多，在 ES5 发布近 6 年（2009-11 至 2015-6）之后才将其标准化。两个发布版本之间时间跨度很大，所以ES6中的特性比较多。 在这里列举几个常用的：
+
+- 类
+- 模块化
+- 箭头函数
+- 函数参数默认值
+- 模板字符串
+- 解构赋值
+- 延展操作符
+- 对象属性简写
+- Promise
+- Let与Const
+
+### 箭头函数
+
+1. 箭头函数没有prototype(原型)，所以箭头函数本身没有this
+
+    ```js
+    let a = () =>{};
+    console.log(a.prototype); // undefined
+    ```
+
+2. 箭头函数的this指向在**定义**的时候继承自外层第一个普通函数的this。
+
+    ```js
+    let a,barObj = { msg: 'bar的this指向' };
+    fooObj = { msg: 'foo的this指向' };
+    bar.call(barObj); // 将bar的this指向barObj
+    foo.call(fooObj); // 将foo的this指向fooObj
+    function foo() {
+      a(); // 结果：{ msg: 'bar的this指向' }
+    }
+    function bar() {
+      a = () => {
+        console.log(this, 'this指向定义的时候外层第一个普通函数'); // 
+      }; // 在bar中定义 this继承于bar函数的this指向
+    }
+    ```
+
+    - 箭头函数的this指向定义时所在的外层第一个普通函数，**跟使用位置没有关系**。
+    - 被继承的普通函数的this指向改变，箭头函数的this指向会跟着改变
+
+3. 不能直接修改箭头函数的this指向。
+4. 箭头函数外层没有普通函数，严格模式和非严格模式下它的this都会指向window(全局对象)。
+5. 箭头函数的this指向全局，使用arguments会报未声明的错误。
+
+    ```js
+    let b = () => {
+    console.log(arguments);
+    };
+    b(1, 2, 3, 4); // Uncaught ReferenceError: arguments is not defined
+    ```
+
+    如果箭头函数的this指向window(全局对象)使用arguments会报错，未声明arguments。
+6. 箭头函数的参数
+   1. this指向普通函数时,它的argumens继承于该普通函数。
+
+    ```js
+    function bar() {
+      console.log(arguments); // ['外层第二个普通函数的参数']
+      bb('外层第一个普通函数的参数');
+      function bb() {
+        console.log(arguments); // ["外层第一个普通函数的参数"]
+        let a = () => {
+          console.log(arguments, 'arguments继承this指向的那个普通函数'); // ["外层第一个普通函数的参数"]
+        };
+        a('箭头函数的参数'); // this指向bb
+      }
+    }
+    bar('外层第二个普通函数的参数');
+    ```
+
+    2. rest参数获取函数的多余参数
+
+    ```js
+    let a = (first, ...abc) => {
+      console.log(first, abc); // 1 [2, 3, 4]
+    };
+    a(1, 2, 3, 4);
+    ```
+
+    3. rest是一个真正的数组，可以使用数组的API。
+    因为arguments是一个类数组的对象，有些人以为它是真正的数组，所以会出现以下场景：
+    `arguments.push(0); // arguments.push is not a function`
+    如上，如果我们需要使用数组的API，需要使用扩展符/Array.from来将它转换成真正的数组:
+    `arguments = [...arguments]; 或者 ：arguments = Array.from(arguments);`
+
+7. 使用new调用箭头函数会报错,因为箭头函数没有constructor
+8. 箭头函数不支持new.target
+   new.target是ES6新引入的属性，普通函数如果通过new调用，new.target会返回该函数的引用。此属性主要：用于确定构造函数是否为new调用的。
+9. 箭头函数不支持重命名函数参数,普通函数的函数参数支持重命。
+
+  ```js
+  // 普通函数的函数参数支持重命名，后面出现的会覆盖前面的，箭头函数会抛出错误：
+    function func1(a, a) {
+    console.log(a, arguments); // 2 [1,2]
+  }
+
+  var func2 = (a,a) => {
+    console.log(a); // 报错：在此上下文中不允许重复参数名称
+  };
+  func1(1, 2); func2(1, 2);
+  ```
+
+10. 箭头函数相对于普通函数语法更简洁优雅。
