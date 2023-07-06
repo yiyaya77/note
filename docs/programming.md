@@ -1,6 +1,8 @@
 #
+
 ## 深拷贝（循环引用）
-https://juejin.cn/post/6844903998823088141#heading-0
+<https://juejin.cn/post/6844903998823088141#heading-0>
+
 ```js
 //使用Map函数
 function deepCopy(obj,map = new Map()){
@@ -37,6 +39,7 @@ const obj1 = {
 //控制台输出{x: 1, y: 2, d: {…}, z: {…}}
 
 ```
+
 - return map.get(obj); 返回这个和返回res是一样的。因为在map中保存的数据，是key和value一模一样的键值对, 包括拷贝的目标对象。
 - Map是如何解决循环引用的？
 
@@ -54,8 +57,8 @@ function delay(text,time){
 }
 ```
 
-
 **promise的实现**
+
 ```js
 function myPromiseAll(arr){
     return new Promise((resolve,reject) => {
@@ -85,6 +88,7 @@ myPromiseAll(p).then(res => console.log(res))
 ```
 
 **实现一个可以限制并发数的Primise.all**
+
 ```js
 function myPromiseAll(arr,limit){
     return new Promise((resolve,reject) => {
@@ -124,6 +128,7 @@ myPromiseAll(p,3).then(res => console.log(res))
 ```
 
 ## 实现`Promise.retry`,成功后resolve结果，失败后重试，尝试超过一定次数才真正的`reject`
+
 ```js
 const myPromeRetry=(fn,times=3)=>{
   if(!fn || typeof fn !== 'function'){
@@ -147,6 +152,7 @@ const myPromeRetry=(fn,times=3)=>{
 ```
 
 ## 作用域
+
 ```js
   const a = 1
   function foo() {
@@ -185,6 +191,7 @@ const myPromeRetry=(fn,times=3)=>{
 答案：1
 
 ## this指向
+
 ```js
 function Person() {
   getName = function () {
@@ -214,11 +221,10 @@ new Person().getName();
 new new Person().getName();
 ```
 
-
 答案：
 
 ==========
-https://juejin.cn/post/6994420985021595662
+<https://juejin.cn/post/6994420985021595662>
 
 2411233
 nodejs 第3个报错
@@ -247,12 +253,16 @@ new new Foo().getName()
 ```
 
 ## 数组扁平化
+
 非递归数组拉平
 数组拉平，将数组转换为一维数组，顺序不变
+
 ```js
 const arr = [1, [2, 3], [4], [5, [6, 7, [8, [9, 10]]]]] 
 ```
+
 ### toString
+
 ```js
  function flatten(input) {
   return input.toString().split(',').map(item => +item);
@@ -262,9 +272,11 @@ const arr = [1, [2, 3], [4], [5, [6, 7, [8, [9, 10]]]]]
 flatten(arr); //[1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
 // 先把数组转换成字符串，这个过程会吧[]去掉，然后再调用split()方法转换成数组,最后不能忘了，吧每一项转换为数组，即调用map()方法。
 ```
+
 > 但是输入也可能是字符串，该方法不通用
 
 ### reduce
+
 ```js
 // convert to one dimension array
 const flatten = (arr) =>
@@ -275,6 +287,7 @@ console.log(flatten(arr))
 ```
 
 ### 非递归的方式
+
 ```js
 const flatten=(arr)=>{
   const stack=[...arr];
@@ -294,6 +307,7 @@ const flatten=(arr)=>{
 ## 路径寻找
 
 输入一个对象和对象上的一个节点或子节点的值（值唯一），输出该值对象在该对象的key的路径
+
 ```js
 const obj = {
   a: {
@@ -336,7 +350,7 @@ function findPath(obj, value) {
 ```
 
 ## 函数柯里化
-https://juejin.cn/post/6864378349512065038
+<https://juejin.cn/post/6864378349512065038>
 > 在数学和计算机科学中，柯里化是一种将使用多个参数的一个函数转换成一系列使用一个参数的函数的技术。
 
 举例来说，一个接收3个参数的普通函数，在进行柯里化后，
@@ -344,6 +358,7 @@ https://juejin.cn/post/6864378349512065038
   该函数返回一个接收第三个参数的函数。
   最后一个函数在接收第三个参数后，
   将之前接收到的三个参数应用于原普通函数中，并返回最终结果。
+
 ```js
 // 数学和计算科学中的柯里化：
 
@@ -368,9 +383,9 @@ let B = A(2);
 B(3)    // print : 6
 ```
 
-
 **累加器**
 完成一个 sum 函数，实现如下功能，注意需要再执行count的时候才真正求和
+
 ```js
 * 编写函数sum
 * sum(1)(2).count() // 3
@@ -391,7 +406,8 @@ function sum(...args) {
 ```
 
 ## 计算平方根
-不使用 Math.sqrt()等 API，手写实现 function sqrt(n:number){} 
+
+不使用 Math.sqrt()等 API，手写实现 function sqrt(n:number){}
 测试：
 sqrt(4) // 2
 sqrt(5) // 2.236067977 返回 number，误差不超过10^-

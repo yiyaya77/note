@@ -1270,7 +1270,7 @@ Stack reconciler的工作流程很像函数的调用过程。父组件里调子�
 ![avatar](./img/18.image)
 
 而Fiber就是用来解决这个问题的，Fiber可以将长时间的同步任务拆分成多个小任务，从而让浏览器能够抽身去响应其他事件，等他空了再回来继续计算，这样整个计算流程就显得平滑很多。下面是使用Fiber后的效果：
-![avatar](/img/19.image)
+![avatar](./img/19.image)
 
 ### 从 DOM 到 fiber 对象
 
@@ -1317,7 +1317,7 @@ export type ReactElement = {|
 当我们写 React 组件时，无论是 class 组件还是函数组件，return 的 JSX 会经过 JSX 编译器（JSX Complier）编译，在编译的过程中，会调用 React.createElement() 这个方法。
 当调用 React.createElement() 的时候实际上调用的是 ReactElement.js（/packages/react/src/ReactElement.js） 中的 createElement() 方法。调用这个方法后，会创建一个 React 元素。
 
-![avatar](/img/20.webp)
+![avatar](./img/20.webp)
 
 在上面 ClickCounter 组件这个例子中， `<button>` 和 `<span>` 是 `<ClickCounter>` 的子组件。而 `<ClickCounter>` 组件其实它本身其实也是一个组件。它是 `<App>` 组件的子组件：
 
@@ -1400,32 +1400,33 @@ export type Fiber = {|
 ```
 
 由于每个组件的 react element 都会有一个与之对应的 fiber node，因此我们会得到一棵 fiber node tree：
-![avatar](/img/23.awebp)
+![avatar](./img/23.awebp)
 
 #### Side-effects
 
 在 fiber node 的类型定义中，有三个属性：firstEffect、lastEffect 和 nextEffect，他们指向的是带有“side-effects”的 fiber node。那 "side-effect" 到底是什么东西呢？写过 React 组件的老铁都知道，React 组件实际上就是一个函数，这个函数接收 props 和 state 作为输入，然后通过计算，最终返回 react element。在这个过程中，会进行一些操作，例如更改 DOM 结构、调用组件的生命周期等等，React 把这些“操作”统称为「side-effect」，简称 「effect」，也就是常说的“副作用”。官方文档中有对 effect 进行介绍。
 大部分组件的 state 和 props 的更新都会导致 side-effect 的产生。此外，我们还可以通过 useEffect 这个 React Hook 来自定义一些 effect。在烧烤哥之前写的 《烤透 React Hook》一文中曾提到过，fiber node 的 effect 会以「循环链表」的形式存储，然后 fiber node 的 updateQueue 会指向这个 effect 循环链表。
 
-![avatar](/img/24.awebp)
+![avatar](./img/24.awebp)
 
 #### Effects list
 
 在一个 fiber node tree 中，有一些 fiber node 是有 effect 需要处理的，而有一些 fiber node 是没有 effect 需要处理的。为了加快整棵 fiber node tree 的 effect 的处理速度，React 为那些带有 effect 需要处理的 fiber node 构建了一个链表，这个链表叫做 「effects list」。这个链表存储这那些带有 effect 的 fiber node。维护这个链表的原因是：因为遍历一个链表比遍历一整棵 fiber node tree 的速度要快得多，对于那些没有 effect 需要处理的 fiber node，我们没有必要花时间去迭代它。这个链表通过前面说过的 fiber node 的 firstEffect、lastEffect 和 nextEffect 三个属性来维护：firstEffect 指向第一个带有 effect 的 fiber node，lastEffect 指向最后一个带有 effect 的fiber node，nextEffect 指向下一个带有 effect 的 fiber node。
 举个例子，下面有一个 fiber node tree，其中颜色高亮的节点时带有 effect 需要处理的 fiber node。假设我们的更新流程将会导致 H 被插入到 DOM 中，C 和 D 将会改变自身的属性（attribute），G将会调用自身的生命周期方法等等。
 
-![avatar](/img/25.awebp)
+![avatar](./img/25.awebp)
+
 那么，这个 fiber node tree 的 effect list 将会把这些节点连接到一起，这样，React 在遍历 fiber node tree 的时候可以跳过其他没有任何任务需要处理的 fiber node 了。
 
-![avatar](/img/26.awebp)
+![avatar](./img/26.awebp)
 
 小结：
 我们再来回顾一下，React 对于页面上 UI 的一步步抽象转化：
-![avatar](/img/27.awebp)
+![avatar](./img/27.awebp)
 
 ### React 架构
 
-![avatar](/img/28.awebp)
+![avatar](./img/28.awebp)
 
 #### 1、任务调度器 Scheduler
 
@@ -1538,7 +1539,7 @@ const existingChildren = mapRemainingChildren(returnFiber, oldFiber);
 
 Fiber之前的数据结构是一棵树，父节点的children指向了子节点，但是只有这一个指针是不能实现中断继续的。比如我现在有一个父节点A，A有三个子节点B,C,D，当我遍历到C的时候中断了，重新开始的时候，其实我是不知道C下面该执行哪个的，因为只知道C，并没有指针指向他的父节点，也没有指针指向他的兄弟。Fiber就是改造了这样一个结构，加上了指向父节点和兄弟节点的指针：
 
-![avatar](/img/29.awebp)
+![avatar](./img/29.awebp)
 
 上面的图片还是来自于官方的演讲，可以看到和之前父节点指向所有子节点不同，这里有三个指针：
 
@@ -1558,7 +1559,7 @@ fiber-conciler下，操作是可以分成很多小部分，并且可以被中断
 
 ### props和state
 
-**一句话概括，props 是组件对外的接口，state 是组件对内的接口。**组件内可以引用其他组件，组件之间的引用形成了一个树状结构（组件树），如果下层组件需要使用上层组件的数据或方法，上层组件就可以通过下层组件的props属性进行传递，因此props是组件对外的接口。组件除了使用上层组件传递的数据外，自身也可能需要维护管理数据，这就是组件对内的接口state。根据对外接口props 和对内接口state，组件计算出对应界面的UI。
+一句话概括，**props 是组件对外的接口，state 是组件对内的接口**。组件内可以引用其他组件，组件之间的引用形成了一个树状结构（组件树），如果下层组件需要使用上层组件的数据或方法，上层组件就可以通过下层组件的props属性进行传递，因此props是组件对外的接口。组件除了使用上层组件传递的数据外，自身也可能需要维护管理数据，这就是组件对内的接口state。根据对外接口props 和对内接口state，组件计算出对应界面的UI。
 
 组件的props 和 state都和组件最终渲染出的UI直接相关。两者的主要区别是：state是可变的，是组件内部维护的一组用于反映组件UI变化的状态集合；而props是组件的只读属性，组件内部不能直接修改props，要想修改props，只能在该组件的上层组件中修改。在组件状态上移的场景中，父组件正是通过子组件的props，传递给子组件其所需要的状态。
 

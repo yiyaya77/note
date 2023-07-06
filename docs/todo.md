@@ -140,6 +140,8 @@ react状态管理
   11. http1和http2,http3
   12. git pull git fetch git reset git revert git rebase和git merge
 
+  fiber时间分片
+
 ## prepare
 
 性能优化，尽量详细 **
@@ -203,3 +205,7 @@ webapck
 浏览器兼容性
 
 <https://juejin.cn/post/6844903781079973895>
+
+pixi.js
+<https://pixijs.huashengweilai.com/guide/start/4.sprite.html#sprites%EF%BC%88%E7%B2%BE%E7%81%B5%EF%BC%89%E4%B8%8Estage%EF%BC%88%E8%88%9E%E5%8F%B0%EF%BC%89>
+<https://cooperhu.com/2019/10/15/canvas/>
