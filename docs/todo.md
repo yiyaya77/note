@@ -141,6 +141,47 @@ react状态管理
   12. git pull git fetch git reset git revert git rebase和git merge
 
   fiber时间分片
+  hooks为什么不能再条件判断里
+
+  前端安全
+  为什么论坛比较容易有跨站脚本攻击（总结带输入框的，跟用户有交互的，不存储数据，但是从后台拿到数据的话一般都会外显在前端界面），怎么防御
+  当前浏览器访问了A网站，b网站是怎么带上A网站的信息的
+  http/https、websocket 相关区别（websocket后台可以主动push消息）  
+  浏览器缓存（强缓存，协商缓存 etag是哈希值，更新的话哈希值会更新）
+  状态码
+  微任务和宏任务
+  diff算法解决什么问题，解决什么性能问题（提升的渲染性能还是交互体验）
+  webpack优化
+  常用loader
+  节流防抖
+
+  function fn1(fun, delay) {
+    let flag = false;
+    return function (...args) {
+        const _this = this;
+        setTimeout(function time() {
+            if (!flag) {
+                fun.apply(_this, ...args);
+                flag = true;
+            }
+        }, delay);
+    }
+}
+
+function fn2(fun, delay) {
+    let timer;
+    return function (...args) {
+        const _this = this;
+        if (timer) {
+            clearTimeout(timer);
+        } else {
+            timer = setTimeout(() => {
+                fun.apply(_this, ...args);
+            }, delay);
+        }
+    }
+}
+
 
 ## prepare
 

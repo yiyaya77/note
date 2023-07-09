@@ -1561,7 +1561,7 @@ fiber-conciler下，操作是可以分成很多小部分，并且可以被中断
 
 一句话概括，**props 是组件对外的接口，state 是组件对内的接口**。组件内可以引用其他组件，组件之间的引用形成了一个树状结构（组件树），如果下层组件需要使用上层组件的数据或方法，上层组件就可以通过下层组件的props属性进行传递，因此props是组件对外的接口。组件除了使用上层组件传递的数据外，自身也可能需要维护管理数据，这就是组件对内的接口state。根据对外接口props 和对内接口state，组件计算出对应界面的UI。
 
-组件的props 和 state都和组件最终渲染出的UI直接相关。两者的主要区别是：state是可变的，是组件内部维护的一组用于反映组件UI变化的状态集合；而props是组件的只读属性，组件内部不能直接修改props，要想修改props，只能在该组件的上层组件中修改。在组件状态上移的场景中，父组件正是通过子组件的props，传递给子组件其所需要的状态。
+组件的props 和 state都和组件最终渲染出的UI直接相关。两者的主要区别是：**state是可变的，是组件内部维护的一组用于反映组件UI变化的状态集合；而props是组件的只读属性，组件内部不能直接修改props，要想修改props，只能在该组件的上层组件中修改**。在组件状态上移的场景中，父组件正是通过子组件的props，传递给子组件其所需要的状态。
 
 #### state 和 props 之间的区别
 
@@ -1650,7 +1650,7 @@ class App extends Component {
 }
 ```
 
-原生事件是指非react合成事件，原生自带的事件监听 addEventListener ，或者也可以用原生js、jq直接 document.querySelector().onclick 这种绑定事件的形式都属于原生事件。
+**原生事件是指非react合成事件，原生自带的事件监听 addEventListener ，或者也可以用原生js、jq直接 document.querySelector().onclick 这种绑定事件的形式都属于原生事件**。
 原生事件的调用栈就比较简单了，因为没有走合成事件的那一大堆，直接触发click事件，到 requestWork ,在requestWork里由于 expirationTime === Sync 的原因，直接走了 performSyncWork 去更新，并不像合成事件或钩子函数中被return，所以当你在原生事件中setState后，能**同步**拿到更新后的state值。
 
 4. setTimeout中的setState

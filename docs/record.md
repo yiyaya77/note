@@ -7,7 +7,9 @@
 
 [HOC](/react.html#高阶组件) 2
 
-[hook](/react.html#高阶组件) 3
+[hook](/react.html#hooks) 3
+
+[hook为什么不能再循环调用](/react.html#常见问题) 6
 
 [缓存及授权](/mix.html#cookie、session、token、jwt) 3
 
@@ -18,3 +20,10 @@
 [webpack打包及优化](/webpack.html#模块打包运行原理) 2
 
 [fiber](/react.html#react-fiber) 5
+
+[es6新特性](/js.html#es6新特性) 2
+
+[继承]() 3
+
+[闭包]() 5
+
