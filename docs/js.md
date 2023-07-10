@@ -1657,12 +1657,219 @@ es6也叫es2015，ES6的特性比较多，在 ES5 发布近 6 年（2009-11 至 
 
 10. 箭头函数相对于普通函数语法更简洁优雅。
 
+#### 总结
+
+- 箭头函数的 this 永远指向其上下文的 this ，**任何方法都改变不了其指向**，如 call() , bind() ,
+apply()
+- **普通函数的this指向调用它的那个对象**。
+
 ## 元编程和proxy
 
 理解元编程 Symbol、Reflect 和 Proxy 是属于 ES6 元编程范畴的，能“介入”的对象底层操作进行的过程中，并加以影响。元编程中的 **元** 的概念可以理解为 程序 本身。**”元编程能让你拥有可以扩展程序自身能力“**。
 
-https://juejin.cn/post/7182084369454989349
-https://juejin.cn/post/6844903695864299534
-https://juejin.cn/post/7007857473700757517
+<https://juejin.cn/post/7182084369454989349>
+<https://juejin.cn/post/6844903695864299534>
+<https://juejin.cn/post/7007857473700757517>
 
 ## 迭代器和生成器
+
+## 类数组对象与 arguments
+
+### 类数组对象
+
+所谓的类数组对象:拥有一个 length 属性和若干索引属性的对象。
+
+```js
+var array = ['name', 'age', 'sex'];
+
+var arrayLike = {
+    0: 'name',
+    1: 'age',
+    2: 'sex',
+    length: 3
+}
+```
+
+```js
+// 读写:
+console.log(array[0]); // name
+console.log(arrayLike[0]); // name
+
+array[0] = 'new name';
+arrayLike[0] = 'new name';
+
+// 长度
+console.log(array.length); // 3
+console.log(arrayLike.length); // 3
+
+// 遍历
+for(var i = 0, len = array.length; i < len; i++) {
+   ……
+}
+for(var i = 0, len = arrayLike.length; i < len; i++) {
+    ……
+}
+```
+
+是不是很像？
+
+那类数组对象可以使用数组的方法吗？比如：`arrayLike.push('4');`
+然而上述代码会报错: `arrayLike.push is not a function`，所以终归还是类数组
+
+### 调用数组方法
+
+既然无法直接调用，我们可以用 Function.call 间接调用：
+
+```js
+var arrayLike = {0: 'name', 1: 'age', 2: 'sex', length: 3 }
+
+Array.prototype.join.call(arrayLike, '&'); // name&age&sex
+
+Array.prototype.slice.call(arrayLike, 0); // ["name", "age", "sex"] 
+// slice可以做到类数组转数组
+
+Array.prototype.map.call(arrayLike, function(item){
+    return item.toUpperCase();
+}); 
+// ["NAME", "AGE", "SEX"]
+```
+
+### 类数组转对象
+
+<https://juejin.cn/post/6844903477202649101>
+在上面的例子中已经提到了一种类数组转数组的方法，再补充三个：
+
+```js
+var arrayLike = {0: 'name', 1: 'age', 2: 'sex', length: 3 }
+// 1. slice
+Array.prototype.slice.call(arrayLike); // ["name", "age", "sex"] 
+// 2. splice
+Array.prototype.splice.call(arrayLike, 0); // ["name", "age", "sex"] 
+// 3. ES6 Array.from
+Array.from(arrayLike); // ["name", "age", "sex"] 
+// 4. apply
+Array.prototype.concat.apply([], arrayLike)
+```
+
+要说到类数组对象，Arguments 对象就是一个类数组对象。在客户端 JavaScript 中，一些 DOM 方法(document.getElementsByTagName()等)也返回类数组对象。
+
+### Arguments对象
+
+Arguments 对象只定义在函数体中，包括了函数的参数和其他属性。在函数体中，arguments 指代该函数的 Arguments 对象。
+
+```js
+function foo(name, age, sex) {
+    console.log(arguments);
+}
+
+foo('name', 'age', 'sex')
+```
+
+![avator](./img/98.awebp)
+我们可以看到除了类数组的索引属性和length属性之外，还有一个callee属性
+
+#### length属性
+
+Arguments对象的length属性，表示实参的长度，举个例子：
+
+```js
+function foo(b, c, d){
+    console.log("实参的长度为：" + arguments.length)
+}
+
+console.log("形参的长度为：" + foo.length)
+
+foo(1)
+
+// 形参的长度为：3
+// 实参的长度为：1
+```
+
+#### callee属性
+
+Arguments 对象的 callee 属性，通过它可以调用函数自身。
+
+讲个闭包经典面试题使用 callee 的解决方法：
+
+```js
+const data = [];
+
+for (let i = 0; i < 3; i++) {
+  (data[i] = function () {
+    console.log(arguments.callee.i);
+  }).i = i;
+}
+
+data[0]();
+data[1]();
+data[2]();
+
+// 0
+// 1
+// 2
+
+```
+
+#### arguments 和对应参数的绑定
+
+```js
+function foo(name, age, sex, hobbit) {
+  console.log(name, arguments[0]); // name name
+
+  // 改变形参
+  name = 'new name';
+
+  console.log(name, arguments[0]); // new name new name
+
+  // 改变arguments
+  arguments[1] = 'new age';
+
+  console.log(age, arguments[1]); // new age new age
+
+  // 测试未传入的是否会绑定
+  console.log(sex); // undefined
+
+  sex = 'new sex';
+
+  console.log(sex, arguments[2]); // new sex undefined
+
+  arguments[3] = 'new hobbit';
+
+  console.log(hobbit, arguments[3]); // undefined new hobbit
+}
+
+foo('name', 'age');
+```
+
+传入的参数，实参和 arguments 的值会共享，当没有传入时，实参与 arguments 值不会共享
+
+除此之外，以上是在非严格模式下，如果是在严格模式下，实参和 arguments 是不会共享的。
+
+#### 传递参数
+
+```js
+// 使用 apply 将 foo 的参数传递给 bar
+function foo() {
+    bar.apply(this, arguments);
+}
+function bar(a, b, c) {
+   console.log(a, b, c);
+}
+
+foo(1, 2, 3)
+// 1 2 3
+```
+
+#### 强大的ES6
+
+使用ES6的 ... 运算符，我们可以轻松转成数组。
+
+```js
+function func(...arguments) {
+    console.log(arguments); // [1, 2, 3]
+}
+
+func(1, 2, 3);
+```
+
+## this指向

@@ -154,34 +154,7 @@ react状态管理
   webpack优化
   常用loader
   节流防抖
-
-  function fn1(fun, delay) {
-    let flag = false;
-    return function (...args) {
-        const _this = this;
-        setTimeout(function time() {
-            if (!flag) {
-                fun.apply(_this, ...args);
-                flag = true;
-            }
-        }, delay);
-    }
-}
-
-function fn2(fun, delay) {
-    let timer;
-    return function (...args) {
-        const _this = this;
-        if (timer) {
-            clearTimeout(timer);
-        } else {
-            timer = setTimeout(() => {
-                fun.apply(_this, ...args);
-            }, delay);
-        }
-    }
-}
-
+  args相关场景
 
 ## prepare
 
