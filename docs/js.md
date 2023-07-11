@@ -1872,4 +1872,417 @@ function func(...arguments) {
 func(1, 2, 3);
 ```
 
-## this指向
+## 继承
+
+### 构造函数
+
+每个构造函数(constructor)都有一个原型对象(prototype),原型对象都包含一个指向构造函数的指针,而实例(instance)都包含一个指向原型对象的内部指针。
+
+引用类型的四个规则：
+
+- 都具有对象特性，即可自由扩展属性。
+- 都有一个隐式原型 \_**proto**_ 属性，属性值是一个普通的对象。
+- 引用类型，隐式原型 \_**proto**_ 的属性值指向它的构造函数的显式原型 prototype 属性值。
+
+  ```js
+    const obj = {};
+    const arr = [];
+    const fn = function() {}
+
+    obj.__proto__ == Object.prototype // true
+    arr.__proto__ === Array.prototype // true
+    fn.__proto__ == Function.prototype // true
+  ```
+
+- 当你试图得到一个对象的某个属性时，如果这个对象本身没有这个属性，那么它会去它的隐式原型 _**proto**_（也就是它的构造函数的显式原型 prototype）中寻找。
+
+> 引用类型：Object、Array、Function、Date、RegExp。这里我姑且称 proto 为隐式原型，没有官方中文叫法，大家都瞎叫居多。
+
+```js
+function Parent(age) {
+    this.age = age;
+}
+
+var p = new Parent(50);
+p.constructor === Parent; // true
+p.constructor === Object; // false
+```
+
+构造函数本身就是一个函数，与普通函数没有任何区别，不过为了规范一般将其首字母大写。构造函数和普通函数的区别在于，使用 new 生成实例的函数就是构造函数，直接调用的就是普通函数。
+
+那是不是意味着普通函数创建的实例没有 constructor 属性呢？不一定。
+
+```js
+function parent2(age) {
+  this.age = age;
+}
+const p2 = parent2(50);
+// undefined
+
+// 普通函数
+function parent3(age) {
+  return {
+    age
+  };
+}
+const p3 = parent3(50);
+p3.constructor === Object; // true
+```
+
+### 模拟实现new
+
+```js
+function create() {
+  // 1、创建一个空的对象
+  const obj = new Object();
+  // 2、获得构造函数，同时删除 arguments 中第一个参数
+  const Con = [].shift.call(arguments);
+  // 3、链接到原型，obj 可以访问构造函数原型中的属性
+  Object.setPrototypeOf(obj, Con.prototype);
+  // 4、绑定 this 实现继承，obj 可以访问到构造函数中的属性
+  const ret = Con.apply(obj, arguments);
+  // 5、优先返回构造函数返回的对象
+  return ret instanceof Object ? ret : obj;
+}
+```
+
+### 原型链
+
+原型链是一种关系,是实例对象和原型对象之间的关系,关系是通过原型(proto)来联系的。
+每个对象拥有一个原型对象，通过 \_**proto**_ 指针指向上一个原型 ，并从中继承方法和属性，同时原型对象也可能拥有原型，这样一层一层，最终指向 null。这种关系被称为原型链 (prototype chain)，通过原型链一个对象会拥有定义在其他对象中的属性和方法。
+
+- 构造函数原型链：
+
+> Person.proto === Object.prototype
+> Person.prototype指向constructor
+
+- 实例化对象原型链：
+
+> p.proto === Person.prototype
+> Person.prototype.proto = == Object.prototype
+> Object.prototype.proto === null
+
+```js
+function Parent(age) {
+  this.age = age;
+}
+const p = new Parent(50);
+
+p; // Parent {age: 50}
+p.__proto__ === Parent.prototype; // true
+p.__proto__.__proto__ === Object.prototype; // true
+p.__proto__.__proto__.__proto__ === null; // true
+
+```
+
+![avator](./img/101.awebp);
+
+![avator](./img/100.awebp);
+
+### 1. 原型链继承
+
+<https://juejin.cn/post/6844903696111763470#heading-0>
+
+构造函数、原型和实例之间的关系：每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个原型对象的指针。
+
+继承的本质就是**复制，即重写原型对象，代之以一个新类型的实例**。
+
+```js
+function SuperType() {
+  this.property = true;
+}
+
+SuperType.prototype.getSuperValue = function () {
+  return this.property;
+};
+
+function SubType() {
+  this.subproperty = false;
+}
+
+// 这里是关键，创建SuperType的实例，并将该实例赋值给SubType.prototype
+SubType.prototype = new SuperType();
+
+SubType.prototype.getSubValue = function () {
+  return this.subproperty;
+};
+
+const instance = new SubType();
+console.log(instance.getSuperValue()); // true
+```
+
+特点：基于原型链，既是父类的实例，也是子类的实例
+
+缺点：无法实现多继承(多继承：即继承多个类，一个子类 可以有多个父类)，因为改变原型指向的同时实现继承,直接初始化了属性，继承过来的属性的值都是一样的了，只能重新调用对象的属性进行重新赋值。多个实例对引用类型的操作会被篡改。
+
+### 2. 借用构造函数继承
+
+使用父类的构造函数来增强子类实例，等同于复制父类的实例给子类（不使用原型）
+继承的时候,不用改变原型的指向,直接调用父级的构造函数的方式来为属性赋值就可以了
+
+```js
+function SuperType() {
+  this.color = ['red', 'green', 'blue'];
+}
+function SubType() {
+  // 继承自SuperType
+  SuperType.call(this);
+}
+const instance1 = new SubType();
+instance1.color.push('black');
+console.log(instance1.color);// "red,green,blue,black"
+
+const instance2 = new SubType();
+console.log(instance2.color);// "red,green,blue"
+```
+
+核心代码是SuperType.call(this)，创建子类实例时调用SuperType构造函数，于是SubType的每个实例都会将SuperType中的属性复制一份。
+特点：可以实现多继承，解决了属性继承,并且值不重复的问题
+缺点：只能继承父类实例的属性和方法，不能继承原型上的属性和方法，无法实现复用，每个子类都有父类实例函数的副本，影响性能
+
+### 3. 组合继承
+
+组合上述两种方法就是组合继承。用原型链实现对原型属性和方法的继承，用借用构造函数技术来实现实例属性的继承。
+
+```js
+function SuperType(name) {
+  this.name = name;
+  this.colors = ['red', 'blue', 'green'];
+}
+SuperType.prototype.sayName = function () {
+  alert(this.name);
+};
+
+function SubType(name, age) {
+  // 继承属性
+  // 第二次调用SuperType()
+  SuperType.call(this, name);
+  this.age = age;
+}
+
+// 继承方法
+// 构建原型链
+// 第一次调用SuperType()
+SubType.prototype = new SuperType();
+// 重写SubType.prototype的constructor属性，指向自己的构造函数SubType
+SubType.prototype.constructor = SubType;
+SubType.prototype.sayAge = function () {
+  console.log(this.age);
+};
+
+const instance1 = new SubType('Nicholas', 29);
+instance1.colors.push('black');
+console.log(instance1.colors); // "red,blue,green,black"
+instance1.sayName(); // "Nicholas";
+instance1.sayAge(); // 29
+
+const instance2 = new SubType('Greg', 27);
+console.log(instance2.colors); // "red,blue,green"
+instance2.sayName(); // "Greg";
+instance2.sayAge(); // 27
+```
+
+![avator](./img/102.awebp);
+
+缺点：
+
+第一次调用SuperType()：给SubType.prototype写入两个属性name，color。
+第二次调用SuperType()：给instance1写入两个属性name，color。
+
+实例对象instance1上的两个属性就屏蔽了其原型对象SubType.prototype的两个同名属性。所以，组合模式的缺点就是在使用子类创建实例对象时，其原型中会存在两份相同的属性/方法。
+
+### 4. 寄生组合继承
+
+#### 原型式继承
+
+利用一个空对象作为中介，将某个对象直接赋值给空对象构造函数的原型。
+
+```js
+function object(obj){
+  function F(){}
+  F.prototype = obj;
+  return new F();
+}
+```
+
+- 创建一个构造函数f
+- 使该构造函数的prototype指针指向参数
+- 创建f对象的一个实例，幷返回
+- 在该函数调用完以后，f的构造函数便会销毁，所以整个函数的工作就是让一个对象的proto指针指
+向参数。
+
+object()对传入其中的对象执行了一次浅复制，将构造函数F的原型直接指向传入的对象。
+
+```js
+const person = {
+  name: 'Nicholas',
+  friends: ['Shelby', 'Court', 'Van']
+};
+
+const anotherPerson = object(person);
+anotherPerson.name = 'Greg';
+anotherPerson.friends.push('Rob');
+
+const yetAnotherPerson = object(person);
+yetAnotherPerson.name = 'Linda';
+yetAnotherPerson.friends.push('Barbie');
+
+alert(person.friends); // "Shelby,Court,Van,Rob,Barbie"
+```
+
+缺点：
+
+原型链继承多个实例的引用类型属性指向相同，存在篡改的可能。
+无法传递参数
+另外，ES5中存在Object.create()的方法，能够代替上面的object方法。
+
+#### 寄生式继承
+
+核心：在原型式继承的基础上，增强对象，返回构造函数
+
+```js
+function createAnother(original) {
+  const clone = object(original); // 通过调用 object() 函数创建一个新对象
+  clone.sayHi = function () { // 以某种方式来增强对象
+    alert('hi');
+  };
+  return clone; // 返回这个对象
+}
+
+// 函数的主要作用是为构造函数新增属性和方法，以**增强函数**
+const person = {
+  name: 'Nicholas',
+  friends: ['Shelby', 'Court', 'Van']
+};
+const anotherPerson = createAnother(person);
+anotherPerson.sayHi(); // "hi"
+```
+
+缺点（同原型式继承）：
+
+原型链继承多个实例的引用类型属性指向相同，存在篡改的可能。
+无法传递参数
+
+#### 寄生组合式继承
+
+结合借用构造函数传递参数和寄生模式实现继承
+
+```js
+function inheritPrototype(subType, superType) {
+  const prototype = Object.create(superType.prototype); // 创建对象，创建父类原型的一个副本 等价于原型式继承中的object方法，使得新创建的prototype对象的proto指针指向SuperType的原型对象
+  prototype.constructor = subType; // 增强对象，弥补因重写原型而失去的默认的constructor 属性
+  subType.prototype = prototype; // 指定对象，将新创建的对象赋值给子类的原型；
+}
+//所以inheritPrototype的工作就是使subType继承于superType(也就是subType的原型对象的proto指针指向superType的原型对象)，
+
+// 父类初始化实例属性和原型属性
+function SuperType(name) {
+  this.name = name;
+  this.colors = ['red', 'blue', 'green'];
+}
+SuperType.prototype.sayName = function () {
+  alert(this.name);
+};
+
+// 借用构造函数传递增强子类实例属性（支持传参和避免篡改）
+function SubType(name, age) {
+  SuperType.call(this, name);
+  this.age = age;
+}
+
+// 将父类原型指向子类
+inheritPrototype(SubType, SuperType);
+
+// 新增子类原型属性
+SubType.prototype.sayAge = function () {
+  alert(this.age);
+};
+
+const instance1 = new SubType('xyc', 23);
+const instance2 = new SubType('lxy', 23);
+
+instance1.colors.push('2'); // ["red", "blue", "green", "2"]
+instance2.colors.push('3'); // ["red", "blue", "green", "3"]
+```
+
+![avator](./img/103.awebp);
+![avator](./img/104.awebp);
+
+### 5. ES6类继承extends
+
+extends关键字主要用于类声明或者类表达式中，以创建一个类，该类是另一个类的子类。其中constructor表示构造函数，一个类中只能有一个构造函数，有多个会报出SyntaxError错误,如果没有显式指定构造方法，则会添加默认的 constructor方法，使用例子如下。
+
+```js
+class Rectangle {
+  // constructor
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+
+  // Getter
+  get area() {
+    return this.calcArea()
+  }
+
+  // Method
+  calcArea() {
+    return this.height * this.width;
+  }
+}
+
+const rectangle = new Rectangle(10, 20);
+console.log(rectangle.area);
+// 输出 200
+
+-----------------------------------------------------------------
+  // 继承
+  class Square extends Rectangle {
+
+    constructor(length) {
+      super(length, length);
+
+      // 如果子类中存在构造函数，则需要在使用“this”之前首先调用 super()。
+      this.name = 'Square';
+    }
+
+    get area() {
+      return this.height * this.width;
+    }
+  }
+
+const square = new Square(10);
+console.log(square.area);
+// 输出 100
+```
+
+extends继承的核心代码如下，其实现和上述的寄生组合式继承方式一样
+
+```js
+function _inherits(subType, superType) {
+  // 创建对象，创建父类原型的一个副本
+  // 增强对象，弥补因重写原型而失去的默认的constructor 属性
+  // 指定对象，将新创建的对象赋值给子类的原型
+  subType.prototype = Object.create(superType && superType.prototype, {
+    constructor: {
+      value: subType,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superType) {
+    Object.setPrototypeOf
+      ? Object.setPrototypeOf(subType, superType)
+      : subType.__proto__ = superType;
+  }
+}
+
+```
+
+### ES5继承和ES6继承的区别
+
+- ES5的继承实质上是先创建子类的实例对象，然后再将父类的方法添加到this上（Parent.call(this)）.
+
+- ES6的继承有所不同，实质上是先创建父类的实例对象this，然后再用子类的构造函数修改this。因为子类没有自己的this对象，所以必须先调用父类的super()方法，否则新建实例报错。
