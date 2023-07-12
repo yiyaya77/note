@@ -194,18 +194,18 @@ nodejs 第3个报错
 主要来看后面三个：
 
 ```js
-new Foo.getName()
-// 这里将Foo上的静态方法getName函数作为构造函数执行，所以得出结果为：2
+new Person.getName()
+// 这里将Person上的静态方法getName函数作为构造函数执行，所以得出结果为：2
 // 注意：这里是先Foo.getName,然后再new
 
-new Foo().getName()
+new Person().getName()
 
-// 这里是先计算new Foo()，即调用的是Foo.prototype上的getName()，即得出结果为：3
+// 这里是先计算new Person()，即调用的是Persono.prototype上的getName()，即得出结果为：3
 
 
-new new Foo().getName()
+new new Person().getName()
 
-// 以上代码相当于new((new Foo()).getName)();答案输出：3
+// 以上代码相当于new((new Person()).getName)();答案输出：3
 // 这题除了明白new的内部原理之外，得注意js运算符的优先级；
 // 以 new new Foo().getName()为例，小结一下上述new的优先级顺序：
 
@@ -306,7 +306,7 @@ function findPath(obj, value) {
     }
     return false
   }
-  dfs(obj)
+  dfs(obj);
   return result
 }
 ```
