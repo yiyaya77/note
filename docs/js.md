@@ -1592,7 +1592,6 @@ es6也叫es2015，ES6的特性比较多，在 ES5 发布近 6 年（2009-11 至 
 
     - 箭头函数的this指向定义时所在的外层第一个普通函数，**跟使用位置没有关系**。
     - 被继承的普通函数的this指向改变，箭头函数的this指向会跟着改变
-
 3. 不能直接修改箭头函数的this指向。
 4. 箭头函数外层没有普通函数，严格模式和非严格模式下它的this都会指向window(全局对象)。
 5. 箭头函数的this指向全局，使用arguments会报未声明的错误。
@@ -1638,10 +1637,10 @@ es6也叫es2015，ES6的特性比较多，在 ES5 发布近 6 年（2009-11 至 
     如上，如果我们需要使用数组的API，需要使用扩展符/Array.from来将它转换成真正的数组:
     `arguments = [...arguments]; 或者 ：arguments = Array.from(arguments);`
 
-7. 使用new调用箭头函数会报错,因为箭头函数没有constructor
-8. 箭头函数不支持new.target
+6. 使用new调用箭头函数会报错,因为箭头函数没有constructor
+7. 箭头函数不支持new.target
    new.target是ES6新引入的属性，普通函数如果通过new调用，new.target会返回该函数的引用。此属性主要：用于确定构造函数是否为new调用的。
-9. 箭头函数不支持重命名函数参数,普通函数的函数参数支持重命。
+8. 箭头函数不支持重命名函数参数,普通函数的函数参数支持重命。
 
   ```js
   // 普通函数的函数参数支持重命名，后面出现的会覆盖前面的，箭头函数会抛出错误：
@@ -1661,7 +1660,7 @@ es6也叫es2015，ES6的特性比较多，在 ES5 发布近 6 年（2009-11 至 
 
 - 箭头函数的 this 永远指向其上下文的 this ，**任何方法都改变不了其指向**，如 call() , bind() ,
 apply()
-- **普通函数的this指向调用它的那个对象**。
+- **普通函数的this指向调用它的那个对象**。 -->
 
 ## 元编程和proxy
 
@@ -1987,6 +1986,8 @@ p.__proto__.__proto__.__proto__ === null; // true
 
 继承的本质就是**复制，即重写原型对象，代之以一个新类型的实例**。
 
+原型链继承的关键是**创建父类的实例，使子类的原型指向它**。
+
 ```js
 function SuperType() {
   this.property = true;
@@ -2000,7 +2001,7 @@ function SubType() {
   this.subproperty = false;
 }
 
-// 这里是关键，创建SuperType的实例，并将该实例赋值给SubType.prototype
+// 这里是关键，**创建SuperType的实例，并将该实例赋值给SubType.prototype**
 SubType.prototype = new SuperType();
 
 SubType.prototype.getSubValue = function () {
@@ -2036,7 +2037,7 @@ const instance2 = new SubType();
 console.log(instance2.color);// "red,green,blue"
 ```
 
-核心代码是SuperType.call(this)，创建子类实例时调用SuperType构造函数，于是SubType的每个实例都会将SuperType中的属性复制一份。
+核心代码是SuperType.call(this)，**创建子类实例时调用SuperType构造函数，于是SubType的每个实例都会将SuperType中的属性复制一份**。
 特点：可以实现多继承，解决了属性继承,并且值不重复的问题
 缺点：只能继承父类实例的属性和方法，不能继承原型上的属性和方法，无法实现复用，每个子类都有父类实例函数的副本，影响性能
 
@@ -2050,7 +2051,7 @@ function SuperType(name) {
   this.colors = ['red', 'blue', 'green'];
 }
 SuperType.prototype.sayName = function () {
-  alert(this.name);
+  console.log(this.name);
 };
 
 function SubType(name, age) {
@@ -2206,7 +2207,7 @@ instance2.colors.push('3'); // ["red", "blue", "green", "3"]
 ```
 
 ![avator](./img/103.awebp);
-![avator](./img/104.awebp);
+![avator](./img/104.png);
 
 ### 5. ES6类继承extends
 
