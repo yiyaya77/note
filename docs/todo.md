@@ -224,14 +224,13 @@ pixi.js
 <https://pixijs.huashengweilai.com/guide/start/4.sprite.html#sprites%EF%BC%88%E7%B2%BE%E7%81%B5%EF%BC%89%E4%B8%8Estage%EF%BC%88%E8%88%9E%E5%8F%B0%EF%BC%89>
 <https://cooperhu.com/2019/10/15/canvas/>
 
-
 事件循环
 遍历数据结构 dfs和bfs
-节流和防抖
+~节流和防抖
 http协议有哪些
 http状态码
 http缓存
 slice和splice
 js bind
 数组转树形结构
-https://blog.csdn.net/Irene1991/article/details/114929258
+<https://blog.csdn.net/Irene1991/article/details/114929258>

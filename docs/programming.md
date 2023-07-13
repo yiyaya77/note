@@ -570,7 +570,7 @@ return function () { // 返回一个新函数
 
 ### 防抖 debounce
 
-函数防抖就是在函数需要频繁触发的情况下，只有足够的空闲时间，才执行一次。 就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。直到n秒内没有被再次点击，才执行事件。
+函数防抖就是在函数需要频繁触发的情况下，只有足够的空闲时间，才执行一次。 就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。直到**n秒内没有被再次点击，才执行事件**。
 
 典型应用
 
@@ -581,9 +581,9 @@ return function () { // 返回一个新函数
 function debounce(handler, delay) {
   delay = delay || 300;
   let timer = null;
-  return function () {
+  return function (...args) {
     const _self = this;
-    const _args = arguments;
+    const _args = args;
     clearTimeout(timer);
     timer = setTimeout(() => {
       handler.apply(_self, _args);
@@ -594,7 +594,7 @@ function debounce(handler, delay) {
 
 ### 节流 throttle
 
-一个函数只有在大于执行周期时才执行，周期内调用不执行。好像水滴积攒到一定程度才会触发一次下落一样。就是不论点击多少次，n秒内只执行一次。
+一个函数只有在大于执行周期时才执行，周期内调用不执行。好像水滴积攒到一定程度才会触发一次下落一样。就是**不论点击多少次，n秒内只执行一次**。
 
 典型应用：
 
@@ -709,3 +709,128 @@ function throttle(fn, interval, context, firstTime) {
 ```
 
 答案：1
+
+## 11. 对象扁平化
+
+```js
+// 实现一个 flatten 函数，实现如下的转换功能
+const obj = {
+  a: 1,
+  b: [1, 2, { c: true }],
+  c: { e: 2, f: 3 },
+  g: null,
+};
+// 转换为
+let objRes = {
+  a: 1,
+  "b[0]": 1,
+  "b[1]": 2,
+  "b[2].c": true,
+  "c.e": 2,
+  "c.f": 3,
+  g: null,
+};
+```
+
+```js
+  flatten = (obj) => {
+    let result = {};
+    const innerCopy = (key, value) => {
+      if (Object(value) !== value) {
+        if (key) {
+          result[key] = value;
+        }
+      } else if (value instanceof Array) {
+        for (let i = 0; i < value.length; i++) {
+          innerCopy(`${key}[${i}]`, value[i]);
+        }
+      } else {
+        const keysArr = Object.keys(value);
+        keysArr.forEach((item) => {
+          innerCopy(key ? `${key}.${item}` : item, value[item]);
+        });
+      }
+    }
+    innerCopy('', obj);
+    return result;
+  }
+```
+
+### 数组转树形结构
+
+```js
+const arr = [
+  {id: 1, name: '部门1', pid: 0},
+  {id: 2, name: '部门2', pid: 1},
+  {id: 3, name: '部门3', pid: 1},
+  {id: 4, name: '部门4', pid: 3},
+  {id: 5, name: '部门5', pid: 4},
+]
+
+const obj = {
+  id: 1,
+  name: "部门1",
+  pid: 0,
+  children: [
+    {
+      id: 2,
+      name: "部门2",
+      pid: 1,
+      children: []
+    },
+    {
+      id: 3,
+      name: "部门3",
+      pid: 1,
+      children: [
+        {
+          id: 4,
+          name: "部门4",
+          pid: 3,
+          children: [
+            {
+              id: 5,
+              name: "部门5",
+              pid:4,
+              children: []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+```js
+// 递归
+function objToTree(arr, id) {
+  const res = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].pid === id) {
+      res.push({
+        ...arr[i], children: objToTree(arr, arr[i].id)
+      });
+    }
+  }
+  return res;
+}
+
+// 循环
+function objToTree(arr, pid) {
+  const resMap = new Map();
+  for (const item of arr) {
+    if (!resMap.has(item.id)) {
+      resMap.set(item.id, { ...item, children: [] });
+    } else {
+      resMap.set(item.id, { ...resMap.get(item.id), ...item });
+    }
+    if (resMap.has(item.pid)) {
+      resMap.get(item.pid).children.push(resMap.get(item.id));
+    } else {
+      resMap.set(item.pid, { children: [resMap.get(item.id)] });
+    }
+  }
+  return resMap.get(pid);
+}
+```

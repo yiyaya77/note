@@ -27,6 +27,6 @@
 
 [闭包](/js.html#闭包和作用域) 5
 
-[节流/防抖](/programming.html#_9-节流防抖) 3
+[节流/防抖](/programming.html#_9-节流防抖) 4
 
 [浏览器缓存](/js.html#缓存) 3
