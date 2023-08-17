@@ -2287,3 +2287,20 @@ function _inherits(subType, superType) {
 - ES5的继承实质上是先创建子类的实例对象，然后再将父类的方法添加到this上（Parent.call(this)）.
 
 - ES6的继承有所不同，实质上是先创建父类的实例对象this，然后再用子类的构造函数修改this。因为子类没有自己的this对象，所以必须先调用父类的super()方法，否则新建实例报错。
+
+## get/post
+
+- GET使用URL或Cookie传参。而POST将数据放在BODY中。
+
+- GET的URL会有长度上的限制，则POST的数据则可以非常大。
+
+- POST比GET安全，因为数据在地址栏上不可见。
+- GET在浏览器回退时是无害的，而POST会再次提交请求。
+- GET产生的URL地址可以被Bookmark，而POST不可以。
+- GET请求会被浏览器主动cache，而POST不会，除非手动设置。 GET请求只能进行url编码，而POST支持多种编码方式。
+- GET请求参数会被完整保留在浏览器历史记录里，而POST中的参数不会被保留。
+- 参数的数据类型，GET只接受ASCII字符，而POST没有限制。
+
+- 对于GET方式的请求，浏览器会把http header和data一并发送出去，服务器响应200(返回数据);
+- 而对于POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok(返回数据)。
+- 并不是所有浏览器都会在POST中发送两次包，chrome、firefox、360会发两次，safari发一次。
